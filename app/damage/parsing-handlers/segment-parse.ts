@@ -226,7 +226,7 @@ export class SegmentParserClass {
                 w: (segment.segment_end - segment.segment_start) / imgDim[0],
                 h: 1,
                 id: segment?.segment_index,
-                colorCode: 2 ?? 0,
+                colorCode: 2,
                 isFadeOut: segment?.isFadeOut,
               };
               parsedNormizedList?.push(normalizedCoords);

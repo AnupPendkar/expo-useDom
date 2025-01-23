@@ -80,7 +80,6 @@ export class ControllerRendererClass extends ControllerBaseClass {
   }
 
   setOverlayBackground(ctrBGView: CtrBGView): void {
-    console.log(ctrBGView);
     FabricImage.fromURL(ctrBGView?.path).then(async (image) => {
       let scaleX = this.canvasRef.width / image.width;
       let scaleY = this.canvasRef.height / image.height;
@@ -91,19 +90,31 @@ export class ControllerRendererClass extends ControllerBaseClass {
         this.constrollerSettings.controllerView ===
         ControllerViewType.OVERLAY_VIEW_MODE
       ) {
-        const isFit = true;
-        if (isFit) {
-          const scaleXToFit = this.canvasRef.width / image.width;
-          const scaleYToFit = this.canvasRef.height / image.height;
-          const minScaleToFit = Math.min(scaleXToFit, scaleYToFit);
-          scaleX = minScaleToFit;
-          scaleY = minScaleToFit;
-        }
+        const scaleXToFit = this.canvasRef.width / image.width;
+        const scaleYToFit = this.canvasRef.height / image.height;
+        const minScaleToFit = Math.min(scaleXToFit, scaleYToFit);
+        scaleX = minScaleToFit;
+        scaleY = minScaleToFit;
         X = (this.canvasRef.width - image.width * scaleX) / 2;
         Y = (this.canvasRef.height - image.height * scaleY) / 2;
+
+        console.log({
+          image,
+          canvasRefWidth: this.canvasRef.width,
+          canvasRefHeight: this.canvasRef.height,
+          scaleXToFit,
+          scaleYToFit,
+          minScaleToFit,
+          scaleX,
+          scaleY,
+          width: image?.width,
+          height: image?.height,
+        });
       }
 
-      console.log(X, Y, scaleX, scaleY);
+      // FabricImage.fromURL(image).then(()=>{
+
+      // })
       image.set({
         hoverCursor: "pointer",
         moveCursor: "pointer",
@@ -113,53 +124,25 @@ export class ControllerRendererClass extends ControllerBaseClass {
         // left: Y,
         scaleX,
         scaleY,
+        lockMovementX: "false",
+        lockMovementY: "false",
+        lockRotation: "false",
+        lockScalingFlip: "false",
+        lockScalingX: "false",
+        lockScalingY: "false",
+        lockSkewingX: "false",
+        lockSkewingY: "false",
       });
 
-      this.canvasRef.add(image);
+      this.canvasRef?.add(image);
 
-      this.backGroundImageRef = image;
-      this.registerCanvasEvents();
-      // this.onAfterCanvasInit();
-      this.onAfterCanvasEmitterFunc();
-      this.canvasRef.requestRenderAll();
+      setTimeout(() => {
+        this.backGroundImageRef = image;
 
-      // (this.canvasRef.backgroundImage = image),
-      //   () => {
-      //     this.backGroundImageRef = image;
-      //     this.registerCanvasEvents();
-      //     this.onAfterCanvasInit();
-      //     this.canvasRef.requestRenderAll();
-      //   },
-      //   {
-      //     hoverCursor: "pointer",
-      //     moveCursor: "pointer",
-      //     originX: "left",
-      //     originY: "top",
-      //     top: X,
-      //     left: Y,
-      //     scaleX,
-      //     scaleY,
-      //   };
-
-      // this.canvasRef?.setBackgroundImage(
-      //   image,
-      //   () => {
-      //     this.backGroundImageRef = image;
-      //     this.registerCanvasEvents();
-      //     this.onAfterCanvasInit();
-      //     this.canvasRef.requestRenderAll();
-      //   },
-      //   {
-      //     hoverCursor: "pointer",
-      //     moveCursor: "pointer",
-      //     originX: "left",
-      //     originY: "top",
-      //     top: X,
-      //     left: Y,
-      //     scaleX,
-      //     scaleY,
-      //   }
-      // );
+        this.registerCanvasEvents();
+        this.onAfterCanvasEmitterFunc();
+        this.canvasRef?.requestRenderAll();
+      }, 100);
     });
   }
 
@@ -186,22 +169,23 @@ export class ControllerRendererClass extends ControllerBaseClass {
         Y = (this.canvasRef?.height - image.height * scaleY) / 2;
       }
 
-      // (this.canvasRef.backgroundImage = image),
-      //   () => {
-      //     this.heapMapBackgroundRef = image;
-      //     this.backGroundImageRef = image;
-      //     this.canvasRef.requestRenderAll();
-      //   },
-      //   {
-      //     hoverCursor: "pointer",
-      //     moveCursor: "pointer",
-      //     originX: "left",
-      //     originY: "top",
-      //     top: X,
-      //     left: Y,
-      //     scaleX,
-      //     scaleY,
-      //   };
+      image.set({
+        hoverCursor: "pointer",
+        moveCursor: "pointer",
+        originX: "left",
+        originY: "top",
+        top: X,
+        left: Y,
+        scaleX,
+        scaleY,
+      });
+
+      // this.canvasRef?.add(image);
+      setTimeout(() => {
+        this.heapMapBackgroundRef = image;
+        this.backGroundImageRef = image;
+        this.canvasRef?.requestRenderAll();
+      }, 100);
     });
   }
 
@@ -239,7 +223,6 @@ export class ControllerRendererClass extends ControllerBaseClass {
       moveCursor: "pointer",
       // renderOnAddRemove: false,
     });
-    console.log("came here", this.viewCanvasRef, this.canvasRef);
     this.setOverlayBackground(background);
 
     // Set canvas dimensions to fit the container
@@ -397,7 +380,7 @@ export class ControllerRendererClass extends ControllerBaseClass {
   }
   onRegisterMobileGuesturesEvents(): void {
     // tslint:disable-next-line:variable-name
-    this.canvasRef.on("touch:gesture", (e) => {
+    (this.canvasRef as any).on("touch:gesture", (e) => {
       const evt = e as any;
       if (evt?.e?.touches && evt?.e?.touches.length === 2) {
         this.pausePanning = true;
@@ -412,7 +395,7 @@ export class ControllerRendererClass extends ControllerBaseClass {
       }
     });
 
-    this.canvasRef.on("touch:drag", (e) => {
+    (this.canvasRef as any).on("touch:drag", (e) => {
       const evt = e as any;
       if (
         this.pausePanning === false &&

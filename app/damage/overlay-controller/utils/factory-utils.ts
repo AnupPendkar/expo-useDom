@@ -21,7 +21,7 @@ export class FactoryUtilsClass {
         const canvasHeight = canvasRef?.height;
         const settingsCloned = cloneDeep(settings);
 
-        const imageWith = await this.getImageDim(settings?.viewImage);
+        const imageWith = await this.getImageDim(settings.viewImage);
         let scaleX = canvasWidth / imageWith[0];
         let scaleY = canvasHeight / imageWith[1];
 
@@ -62,7 +62,7 @@ export class FactoryUtilsClass {
   static getImageDim(ctrVBGView: CtrBGView): Promise<Array<number>> {
     return new Promise((resolved, rejected) => {
       try {
-        FabricImage.fromURL(ctrVBGView?.path).then((image) =>
+        FabricImage.fromURL(ctrVBGView.path).then((image) =>
           resolved([image.width, image.height])
         );
       } catch (e) {
